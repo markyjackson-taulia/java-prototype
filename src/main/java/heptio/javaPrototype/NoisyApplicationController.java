@@ -30,13 +30,13 @@ public class NoisyApplicationController {
 
     public void run() throws Exception {
         while (true) {
-            this.bloat(100, 1024);
-            this.sleep();
-            logger.info("Number of threads : " + Thread.activeCount());
-            long totalMemory = Runtime.getRuntime().totalMemory();
+            this.bloat(100, 1024 * 1024);
+            long totalMemory = Runtime.getRuntime().maxMemory();
             long freeMemory = Runtime.getRuntime().freeMemory();
             logger.info("Total memory      : " + String.valueOf(HumanReadableBytes.humanReadableByteCount(totalMemory, false)));
             logger.info("Free memory       : " + String.valueOf(HumanReadableBytes.humanReadableByteCount(freeMemory, false)));
+            logger.info("Number of threads : " + Thread.activeCount());
+            this.sleep();
         }
     }
 
