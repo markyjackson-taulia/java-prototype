@@ -1,28 +1,36 @@
+FROM alpine/git as clone
+ARG url
+WORKDIR /app
+RUN git clone ${url}
+
+FROM maven:3.2-jdk-8 as build
+ARG project
+WORKDIR /app
+COPY --from=clone /app/${project} /app
+RUN mvn clean package
 
 FROM openjdk:jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar /app
+
+
 
 # app and environment variables
-ENV PROTOTYPE_ARTIFACT_CANONICAL_NAME  java-prototype
-ENV PROTOTYPE_ARTIFACT $PROTOTYPE_ARTIFACT_CANONICAL_NAME.jar
-ENV PROTOTYPE_HOME_PARENT /opt/apps/java-prototype
-ENV PROTOTYPE_HOME $PROTOTYPE_HOME_PARENT/$PROTOTYPE_ARTIFACT_CANONICAL_NAME
-ENV PROTOTYPE_LOG_DIR $PROTOTYPE_HOME/logs
+ARG MYSQL_ROOT_PASSWORD
+ARG MYSQL_USER
+ARG JAVAPROTOTYPE_MYSQL_CONNECTION_STRING
+
+ENV LOG_DIR $WORKDIR/logs
 
 # app setup
-RUN mkdir -p $PROTOTYPE_HOME/conf
-RUN mkdir -p $PROTOTYPE_HOME/agent
-RUN mkdir -p $PROTOTYPE_LOG_DIR
-
-ADD target/$PROTOTYPE_ARTIFACT_CANONICAL_NAME*.jar \
-  $PROTOTYPE_HOME/$PROTOTYPE_ARTIFACT_CANONICAL_NAME.jar
-
-WORKDIR $PROTOTYPE_HOME
+RUN mkdir -p $WORKDIR/conf
+# Placeholder for logging and monitoring agent
+RUN mkdir -p $WORKDIR/agent
+RUN mkdir -p $LOG_DIR
 
 # Docker daemon log rotation
 ADD docker/docker-container \
     /etc/logrotate.d/docker-container
-ADD docker/entrypoint.sh /entrypoint.sh
-ADD Dockerfile /
 EXPOSE 8080
-ENTRYPOINT ["/entrypoint.sh"]
-CMD [""]
+ENTRYPOINT ["sh", "-c"]
+CMD ["java ${JAVA_OPTS} -jar *.jar --spring.config.location=${PROTOTYPE_HOME}/conf/"]
