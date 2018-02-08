@@ -33,4 +33,4 @@ ADD docker/docker-container \
     /etc/logrotate.d/docker-container
 EXPOSE 8080
 ENTRYPOINT ["sh", "-c"]
-CMD ["java ${JAVA_OPTS} -jar *.jar --spring.config.location=${PROTOTYPE_HOME}/conf/"]
+CMD ["java ${JAVA_OPTS} -jar *.jar --spring.config.location=${WORKDIR}/conf/"]
