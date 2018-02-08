@@ -4,7 +4,7 @@
 steps:
 # Build the alpine and debian versions.
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-f', 'Dockerfile', '--tag=gcr.io/$PROJECT_ID/java-prototype', '.']
+  args: ['build', '-f', 'Dockerfile', '--build-arg', 'url=https://github.com/heptio/java-prototype.git', '--build-arg', 'project=java-prototype', '--tag=gcr.io/$PROJECT_ID/java-prototype', '.']
 
 images:
 - 'gcr.io/$PROJECT_ID/java-prototype'
